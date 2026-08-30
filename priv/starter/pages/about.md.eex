@@ -1,0 +1,11 @@
+---
+title: About
+layout: page
+---
+
+# About <%= @site_title %>
+
+This is the about page for **<%= @site_title %>**, a site built with
+[Grimoire](https://github.com/uminocelo/grimoire_ex).
+
+Edit `_pages/about.md` to make it your own.
