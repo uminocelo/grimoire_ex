@@ -1,0 +1,67 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Elixir ${{ matrix.elixir }} / OTP ${{ matrix.otp }}
+    runs-on: ubuntu-24.04
+
+    strategy:
+      fail-fast: false
+      matrix:
+        elixir:
+          - "1.18"
+        otp:
+          - "26"
+
+    steps:
+      - name: Check out Grimoire
+        uses: actions/checkout@v7
+        with:
+          path: grimoire
+
+      # Grimoire depends on Alembic as a local path dependency
+      # ({:alembic, path: "../alembic"}), so CI checks it out as a sibling
+      # directory to reproduce the same layout used in local development.
+      - name: Check out Alembic (sibling path dependency)
+        uses: actions/checkout@v7
+        with:
+          repository: uminocelo/alembic_ex
+          path: alembic
+
+      - name: Set up Elixir and Erlang
+        uses: erlef/setup-beam@v1
+        with:
+          elixir-version: ${{ matrix.elixir }}
+          otp-version: ${{ matrix.otp }}
+
+      - name: Install Hex
+        run: mix local.hex --force
+
+      - name: Fetch dependencies
+        working-directory: grimoire
+        run: mix deps.get
+
+      - name: Check formatting
+        working-directory: grimoire
+        run: mix format --check-formatted
+
+      - name: Compile development environment
+        working-directory: grimoire
+        run: mix compile --warnings-as-errors
+
+      - name: Compile test environment
+        working-directory: grimoire
+        run: MIX_ENV=test mix compile --warnings-as-errors
+
+      - name: Run tests
+        working-directory: grimoire
+        run: mix test
