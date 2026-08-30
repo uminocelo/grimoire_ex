@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+
+{% block content %}
+<article>
+  <h1>{{ post.title }}</h1>
+  <p><time>{{ post.date | date_to_string }}</time></p>
+  {{ post.content }}
+</article>
+{% endblock %}

@@ -1,0 +1,6 @@
+%{
+  title: "<%= @site_title %>",
+  base_url: "http://localhost:4000",
+  author: "Your Name",
+  description: "A new site built with Grimoire."
+}
