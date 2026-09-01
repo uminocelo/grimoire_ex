@@ -82,6 +82,21 @@ defmodule Grimoire.Renderer do
     render_with_layout(page.layout || "page", context, page, site)
   end
 
+  @doc """
+  Renders an arbitrary `context` through `layout`, for archive pages
+  (pagination/tag/category) that aren't backed by a `%Post{}`/`%Page{}`.
+  Falls back to `opts[:fallback]` if `layout` doesn't exist, then to raw
+  `context["content"]`, mirroring `render_post/3`'s `"default"` fallback.
+  `opts[:source]` labels the page in error tuples (e.g. `"tags/elixir"`).
+  """
+  @spec render_layout(String.t(), map(), Site.t(), keyword()) ::
+          {:ok, String.t()} | {:error, render_error()}
+  def render_layout(layout, context, site, opts \\ []) do
+    source = Keyword.get(opts, :source, layout)
+    fallback = Keyword.get(opts, :fallback)
+    render_with_layout(layout, context, %{source_path: source}, site, fallback)
+  end
+
   @doc "`%Site{}` → plain string-keyed map for the template context."
   @spec site_to_map(Site.t()) :: map()
   def site_to_map(site) do
@@ -132,13 +147,21 @@ defmodule Grimoire.Renderer do
     }
   end
 
-  defp render_with_layout(layout, context, item, site) do
+  defp render_with_layout(layout, context, item, site, fallback \\ nil) do
     opts = render_opts(site)
 
     case Alembic.render_file("#{layout}.html", context, opts) do
-      {:ok, html} -> {:ok, html}
-      {:error, {:loader, _reason}} -> render_default_layout(context, item, opts)
-      {:error, reason} -> {:error, %{reason: reason, source: item.source_path}}
+      {:ok, html} ->
+        {:ok, html}
+
+      {:error, {:loader, _reason}} when is_binary(fallback) ->
+        render_with_layout(fallback, context, item, site)
+
+      {:error, {:loader, _reason}} ->
+        render_default_layout(context, item, opts)
+
+      {:error, reason} ->
+        {:error, %{reason: reason, source: item.source_path}}
     end
   end
 
