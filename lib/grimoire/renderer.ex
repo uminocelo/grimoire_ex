@@ -168,7 +168,7 @@ defmodule Grimoire.Renderer do
   defp render_default_layout(context, item, opts) do
     case Alembic.render_file("default.html", context, opts) do
       {:ok, html} -> {:ok, html}
-      {:error, {:loader, _reason}} -> {:ok, context["content"]}
+      {:error, {:loader, _reason}} -> {:ok, context["content"] || ""}
       {:error, reason} -> {:error, %{reason: reason, source: item.source_path}}
     end
   end

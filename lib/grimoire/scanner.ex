@@ -23,10 +23,15 @@ defmodule Grimoire.Scanner do
 
   @passthrough_extensions ~w(.txt .ico .xml .json)
 
-  @doc "Scans `site_root` and returns a fully populated `%Site{}`."
-  @spec scan(String.t()) :: Site.t()
-  def scan(site_root) do
-    config = Config.load(site_root)
+  @doc """
+  Scans `site_root` and returns a fully populated `%Site{}`. Accepts an
+  optional pre-loaded `config` (e.g. with an overridden `:destination`)
+  instead of loading `site_root`'s `config.exs` again — every post/page's
+  `url`/`output_path` is computed against it.
+  """
+  @spec scan(String.t(), Config.t() | nil) :: Site.t()
+  def scan(site_root, config \\ nil) do
+    config = config || Config.load(site_root)
     buckets = site_root |> walk() |> Enum.group_by(&classify_full_path(&1, site_root))
 
     posts =
