@@ -23,12 +23,12 @@ defmodule Grimoire.Page do
 
   @type t :: %__MODULE__{
           title: String.t(),
-          layout: String.t(),
+          layout: String.t() | nil,
           permalink: String.t() | nil,
           slug: String.t(),
           source_path: String.t(),
-          url: String.t(),
-          output_path: String.t(),
+          url: String.t() | nil,
+          output_path: String.t() | nil,
           content_html: String.t(),
           raw_meta: map()
         }

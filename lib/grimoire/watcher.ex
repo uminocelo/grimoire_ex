@@ -58,6 +58,7 @@ defmodule Grimoire.Watcher do
     GenServer.start_link(__MODULE__, opts, name: name)
   end
 
+  @doc false
   @impl true
   def init(opts) do
     site_root = Keyword.fetch!(opts, :site_root)
@@ -81,6 +82,7 @@ defmodule Grimoire.Watcher do
      }}
   end
 
+  @doc false
   @impl true
   def handle_info(:poll, state) do
     new_fingerprints = snapshot_fingerprints(state.site_root)

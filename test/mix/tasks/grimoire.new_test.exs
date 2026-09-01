@@ -17,6 +17,7 @@ defmodule Mix.Tasks.Grimoire.NewTest do
     assert File.regular?(Path.join(site_dir, "config.exs"))
     assert File.regular?(Path.join(site_dir, "_layouts/base.html"))
     assert File.regular?(Path.join(site_dir, "_layouts/post.html"))
+    assert File.regular?(Path.join(site_dir, "_layouts/index.html"))
     assert File.regular?(Path.join(site_dir, "_pages/about.md"))
     assert File.regular?(Path.join(site_dir, "assets/css/style.css"))
 

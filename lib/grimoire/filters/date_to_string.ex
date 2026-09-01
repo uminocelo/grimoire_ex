@@ -13,10 +13,15 @@ defmodule Grimoire.Filters.DateToString do
 
   @default_format "%B %-d, %Y"
 
+  @doc "The template-facing filter name, `\"date_to_string\"`."
   @impl true
+  @spec name() :: String.t()
   def name, do: "date_to_string"
 
+  @doc "Formats `value` (an optional format-string arg overrides the default)."
   @impl true
+  @spec apply(Date.t() | DateTime.t() | String.t(), list()) ::
+          {:ok, String.t()} | {:error, term()}
   def apply(value, args) do
     with {:ok, date} <- Dates.parse(value) do
       {:ok, Calendar.strftime(date, format_arg(args))}

@@ -46,6 +46,7 @@ defmodule Grimoire.CLI do
     System.halt(1)
   end
 
+  @spec help_and_halt() :: no_return()
   defp help_and_halt do
     help()
     System.halt(1)

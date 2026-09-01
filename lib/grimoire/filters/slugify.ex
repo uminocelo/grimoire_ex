@@ -9,9 +9,13 @@ defmodule Grimoire.Filters.Slugify do
 
   alias Grimoire.Router
 
+  @doc "The template-facing filter name, `\"slugify\"`."
   @impl true
+  @spec name() :: String.t()
   def name, do: "slugify"
 
+  @doc "Downcases, strips punctuation, and dash-separates `value`."
   @impl true
+  @spec apply(String.t(), list()) :: {:ok, String.t()}
   def apply(value, _args) when is_binary(value), do: {:ok, Router.slugify(value)}
 end

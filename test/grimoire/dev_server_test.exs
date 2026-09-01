@@ -4,8 +4,6 @@ defmodule Grimoire.DevServerTest do
   alias Grimoire.DevServer
 
   setup do
-    :inets.start()
-
     dir =
       Path.join(System.tmp_dir!(), "grimoire_dev_server_test_#{System.unique_integer([:positive])}")
 

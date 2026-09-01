@@ -64,6 +64,7 @@ defmodule Grimoire.DevServer do
     GenServer.start_link(__MODULE__, opts, name: name)
   end
 
+  @doc false
   @impl true
   def init(opts) do
     document_root = Keyword.get(opts, :document_root, "_site")
@@ -81,9 +82,11 @@ defmodule Grimoire.DevServer do
     end
   end
 
+  @doc false
   @impl true
   def handle_call(:port, _from, state), do: {:reply, state.port, state}
 
+  @doc false
   @impl true
   def terminate(_reason, state) do
     :inets.stop(:httpd, state.httpd_pid)

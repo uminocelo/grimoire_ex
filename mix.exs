@@ -10,7 +10,9 @@ defmodule Grimoire.MixProject do
       deps: deps(),
       escript: escript(),
       elixirc_paths: elixirc_paths(Mix.env()),
-      test_coverage: [summary: [threshold: 80]]
+      test_coverage: [summary: [threshold: 80]],
+      dialyzer: [plt_add_apps: [:mix, :inets, :eex]],
+      docs: docs()
     ]
   end
 
@@ -27,10 +29,15 @@ defmodule Grimoire.MixProject do
   # or `mix escript.build` won't bundle its .beam files and the escript
   # fails at runtime with EEx undefined.
   #
+  # :inets backs Grimoire.DevServer's httpd. Declaring it here is what
+  # actually starts the :inets OTP application at boot — without it,
+  # :inets.start(:httpd, opts) fails with {:error, :inets_not_started}
+  # outside of a context (like a test) that starts :inets itself.
+  #
   # :xmerl (OTP stdlib, not a Hex dependency) is only needed in test, to
   # structurally validate the XML feed/sitemap output — see feed_test.exs.
-  defp extra_applications(:test), do: [:logger, :eex, :xmerl]
-  defp extra_applications(_env), do: [:logger, :eex]
+  defp extra_applications(:test), do: [:logger, :eex, :inets, :xmerl]
+  defp extra_applications(_env), do: [:logger, :eex, :inets]
 
   # Run "mix help deps" to learn about dependencies.
   defp deps do
@@ -44,6 +51,68 @@ defmodule Grimoire.MixProject do
 
   defp escript do
     [main_module: Grimoire.CLI, name: "grimoire"]
+  end
+
+  defp docs do
+    [
+      main: "readme",
+      extras: [
+        "README.md",
+        "docs/getting-started.md",
+        "docs/site-structure.md",
+        "docs/front-matter.md",
+        "docs/templates.md",
+        "docs/config.md",
+        "docs/deployment.md",
+        "CHANGELOG.md"
+      ],
+      groups_for_modules: [
+        Content: [
+          Grimoire.Config,
+          Grimoire.Scanner,
+          Grimoire.FrontMatter,
+          Grimoire.Markdown,
+          Grimoire.Post,
+          Grimoire.Page,
+          Grimoire.Collection,
+          Grimoire.Site
+        ],
+        Pipeline: [
+          Grimoire.Renderer,
+          Grimoire.Router,
+          Grimoire.Filters.DateToString,
+          Grimoire.Filters.DateToXmlschema,
+          Grimoire.Filters.XmlEscape,
+          Grimoire.Filters.Slugify,
+          Grimoire.Filters.RelativeUrl,
+          Grimoire.Filters.AbsoluteUrl,
+          Grimoire.Filters.UrlHelpers
+        ],
+        Build: [
+          Grimoire.Builder,
+          Grimoire.Paginator,
+          Grimoire.Tagger,
+          Grimoire.Categorizer,
+          Grimoire.Feed,
+          Grimoire.Sitemap,
+          Grimoire.Assets
+        ],
+        Dev: [
+          Grimoire.DevServer,
+          Grimoire.Watcher
+        ],
+        CLI: [
+          Grimoire.CLI,
+          Grimoire.CLI.Commands,
+          Grimoire.CLI.Logger,
+          Grimoire.SiteGenerator,
+          Mix.Tasks.Grimoire.Build,
+          Mix.Tasks.Grimoire.Serve,
+          Mix.Tasks.Grimoire.New,
+          Mix.Tasks.Grimoire.Clean
+        ]
+      ]
+    ]
   end
 
   defp elixirc_paths(:test), do: ["lib", "test/support"]
