@@ -34,6 +34,27 @@ defmodule Grimoire.CollectionTest do
 
       assert Enum.map(Collection.from_posts(posts), & &1.slug) == ["c", "a"]
     end
+
+    test "populates next (newer) and previous (older), nil at the newest/oldest ends" do
+      posts = [
+        post(date: ~D[2024-01-01], slug: "oldest", source_path: "a"),
+        post(date: ~D[2024-02-01], slug: "middle", source_path: "b"),
+        post(date: ~D[2024-03-01], slug: "newest", source_path: "c")
+      ]
+
+      [newest, middle, oldest] = Collection.from_posts(posts)
+
+      assert newest.slug == "newest"
+      assert newest.next == nil
+      assert newest.previous.slug == "middle"
+
+      assert middle.next.slug == "newest"
+      assert middle.previous.slug == "oldest"
+
+      assert oldest.slug == "oldest"
+      assert oldest.next.slug == "middle"
+      assert oldest.previous == nil
+    end
   end
 
   describe "by_tag/1" do
