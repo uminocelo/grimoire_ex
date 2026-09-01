@@ -20,7 +20,8 @@ defmodule Grimoire.Config do
     feed_posts: 20,
     timezone: "UTC",
     generate_tags: true,
-    generate_categories: true
+    generate_categories: true,
+    fingerprint_assets: false
   ]
 
   @type t :: %__MODULE__{
@@ -35,7 +36,8 @@ defmodule Grimoire.Config do
           feed_posts: pos_integer(),
           timezone: String.t(),
           generate_tags: boolean(),
-          generate_categories: boolean()
+          generate_categories: boolean(),
+          fingerprint_assets: boolean()
         }
 
   @required_fields [:title, :base_url]
