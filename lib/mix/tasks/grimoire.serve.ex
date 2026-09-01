@@ -7,30 +7,42 @@ defmodule Mix.Tasks.Grimoire.Serve do
       $ mix grimoire.serve
       $ mix grimoire.serve --port 4001 --source path/to/site --no-watch
 
-  `Grimoire.DevServer` and `Grimoire.Watcher` land in a later milestone —
-  until then this task runs the build and reports what it would start next,
-  without failing.
+  Runs in the foreground; `Ctrl+C` (twice, standard `mix` behaviour) stops
+  it.
   """
 
   use Mix.Task
 
   alias Grimoire.CLI.Logger, as: Log
+  alias Grimoire.{Builder, Config, DevServer, Scanner, Watcher}
 
   @switches [port: :integer, source: :string, watch: :boolean]
 
   @impl Mix.Task
   def run(argv) do
+    Mix.Task.run("app.start")
     {opts, _rest} = OptionParser.parse!(argv, strict: @switches)
+
     watch? = Keyword.get(opts, :watch, true)
     port = Keyword.get(opts, :port, 4000)
     source = Keyword.get(opts, :source, ".")
 
-    Mix.Task.run("grimoire.build", ["--source", source])
+    config = source |> Config.load() |> then(&%{&1 | destination: output_dir(source, &1.destination)})
+    site = Scanner.scan(source, config)
 
-    Log.warn(
-      "DevServer/Watcher are not wired yet (later milestone) — " <>
-        "would now serve #{source} on port #{port}" <>
-        if(watch?, do: " with the watcher enabled", else: " with the watcher disabled")
-    )
+    Log.step("Building")
+    {:ok, _summary} = Builder.build(site)
+
+    {:ok, _pid} = DevServer.start(document_root: config.destination, port: port)
+
+    if watch? do
+      {:ok, _pid} = Watcher.start(site_root: source, config: config, site: site)
+    end
+
+    Process.sleep(:infinity)
+  end
+
+  defp output_dir(source, destination) do
+    if Path.type(destination) == :absolute, do: destination, else: Path.join(source, destination)
   end
 end
