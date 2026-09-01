@@ -18,7 +18,8 @@ defmodule Grimoire.Config do
     paginate: 10,
     permalink: :pretty,
     feed_posts: 20,
-    timezone: "UTC"
+    timezone: "UTC",
+    fingerprint_assets: false
   ]
 
   @type t :: %__MODULE__{
@@ -31,7 +32,8 @@ defmodule Grimoire.Config do
           paginate: pos_integer() | false,
           permalink: :pretty | :date | :ordinal | String.t(),
           feed_posts: pos_integer(),
-          timezone: String.t()
+          timezone: String.t(),
+          fingerprint_assets: boolean()
         }
 
   @required_fields [:title, :base_url]
