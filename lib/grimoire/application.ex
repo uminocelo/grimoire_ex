@@ -15,6 +15,11 @@ defmodule Grimoire.Application do
   @impl true
   def start(_type, _args) do
     Application.put_env(:alembic, :custom_filters, @filters)
-    Supervisor.start_link([], strategy: :one_for_one, name: Grimoire.Supervisor)
+
+    children = [
+      {DynamicSupervisor, name: Grimoire.ServeSupervisor, strategy: :one_for_one}
+    ]
+
+    Supervisor.start_link(children, strategy: :one_for_one, name: Grimoire.Supervisor)
   end
 end
