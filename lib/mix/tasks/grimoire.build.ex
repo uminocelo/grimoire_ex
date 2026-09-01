@@ -6,42 +6,20 @@ defmodule Mix.Tasks.Grimoire.Build do
 
       $ mix grimoire.build
       $ mix grimoire.build --source path/to/site --dest _site --verbose
-
-  `Grimoire.Scanner` and `Grimoire.Builder` land in later milestones — until
-  then this task loads and validates config, and reports what it would do
-  next, without failing.
+      $ mix grimoire.build --clean
   """
 
   use Mix.Task
 
-  alias Grimoire.CLI.Logger, as: Log
-  alias Grimoire.Config
-
-  @switches [source: :string, dest: :string, verbose: :boolean]
+  alias Grimoire.CLI.Commands
 
   @impl Mix.Task
   def run(argv) do
-    {opts, _rest} = OptionParser.parse!(argv, strict: @switches)
+    Mix.Task.run("app.start")
 
-    source = Keyword.get(opts, :source, ".")
-    verbose = Keyword.get(opts, :verbose, false)
-    start = System.monotonic_time(:millisecond)
-
-    Log.step("Loading config from #{Path.join(source, "config.exs")}")
-    config = Config.load(source)
-    destination = Keyword.get(opts, :dest, config.destination)
-    output_dir = Path.join(source, destination)
-
-    if verbose do
-      Log.step("Site: #{inspect(config.title)}, output: #{output_dir}")
+    case Commands.build(argv) do
+      :ok -> :ok
+      {:error, reason} -> Mix.raise("Build failed: #{inspect(reason)}")
     end
-
-    Log.warn("Scanner/Builder are not wired yet (later milestones) — nothing was written")
-
-    Log.summary(%{
-      title: config.title,
-      output_dir: output_dir,
-      duration_ms: System.monotonic_time(:millisecond) - start
-    })
   end
 end

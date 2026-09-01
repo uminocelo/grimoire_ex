@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block content %}
+{% include "header.html" %}
+<article>
+  <time>{{ post.date | date_to_string }}</time>
+  <a href="{{ post.url | absolute_url }}">permalink</a>
+  {{ content }}
+</article>
+{% endblock %}

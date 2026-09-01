@@ -13,6 +13,7 @@ defmodule Grimoire.SiteGenerator do
     config: Path.join(starter_dir, "config.exs.eex"),
     base_layout: Path.join(starter_dir, "layouts/base.html.eex"),
     post_layout: Path.join(starter_dir, "layouts/post.html.eex"),
+    index_layout: Path.join(starter_dir, "layouts/index.html.eex"),
     about_page: Path.join(starter_dir, "pages/about.md.eex"),
     hello_post: Path.join(starter_dir, "posts/hello-grimoire.md.eex")
   }
@@ -24,6 +25,7 @@ defmodule Grimoire.SiteGenerator do
   @config_template File.read!(templates.config)
   @base_layout_template File.read!(templates.base_layout)
   @post_layout_template File.read!(templates.post_layout)
+  @index_layout_template File.read!(templates.index_layout)
   @about_page_template File.read!(templates.about_page)
   @hello_post_template File.read!(templates.hello_post)
 
@@ -47,6 +49,7 @@ defmodule Grimoire.SiteGenerator do
       write!(Path.join(dir, "config.exs"), render(@config_template, assigns))
       write!(Path.join(dir, "_layouts/base.html"), render(@base_layout_template, assigns))
       write!(Path.join(dir, "_layouts/post.html"), render(@post_layout_template, assigns))
+      write!(Path.join(dir, "_layouts/index.html"), render(@index_layout_template, assigns))
       write!(Path.join(dir, "_pages/about.md"), render(@about_page_template, assigns))
 
       write!(

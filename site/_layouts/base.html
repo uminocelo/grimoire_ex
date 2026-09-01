@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ page.title | default: site.title }} · {{ site.title }}</title>
+    <meta name="description" content="{{ site.description }}">
+    {% assign stylesheet_path = "/assets/css/style.css" %}
+    <link rel="stylesheet" href="{{ stylesheet_path | relative_url }}">
+    {% assign feed_path = "/feed.xml" %}
+    <link rel="alternate" type="application/rss+xml" title="{{ site.title }}" href="{{ feed_path | relative_url }}">
+  </head>
+  <body>
+    <div class="wrap">
+      {% include "header.html" %}
+      <main>
+        {% block content %}{% endblock %}
+      </main>
+      {% include "footer.html" %}
+    </div>
+  </body>
+</html>

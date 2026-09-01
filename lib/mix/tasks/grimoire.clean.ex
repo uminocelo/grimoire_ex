@@ -13,24 +13,10 @@ defmodule Mix.Tasks.Grimoire.Clean do
 
   use Mix.Task
 
-  alias Grimoire.CLI.Logger, as: Log
-
-  @switches [source: :string, dest: :string]
+  alias Grimoire.CLI.Commands
 
   @impl Mix.Task
   def run(argv) do
-    {opts, _rest} = OptionParser.parse!(argv, strict: @switches)
-
-    source = Keyword.get(opts, :source, ".")
-    dest = Keyword.get(opts, :dest, "_site")
-    output_dir = Path.join(source, dest)
-
-    if File.exists?(output_dir) do
-      IO.puts("Deleting #{output_dir}/...")
-      File.rm_rf!(output_dir)
-      Log.success("Deleted #{output_dir}/")
-    else
-      Log.warn("#{output_dir}/ does not exist — nothing to clean")
-    end
+    Commands.clean(argv)
   end
 end
