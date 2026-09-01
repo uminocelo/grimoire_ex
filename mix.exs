@@ -22,10 +22,15 @@ defmodule Grimoire.MixProject do
     ]
   end
 
+  # :eex (Elixir stdlib) renders the `grimoire.new` starter templates —
+  # it must be an application dependency, not just an available module,
+  # or `mix escript.build` won't bundle its .beam files and the escript
+  # fails at runtime with EEx undefined.
+  #
   # :xmerl (OTP stdlib, not a Hex dependency) is only needed in test, to
   # structurally validate the XML feed/sitemap output — see feed_test.exs.
-  defp extra_applications(:test), do: [:logger, :xmerl]
-  defp extra_applications(_env), do: [:logger]
+  defp extra_applications(:test), do: [:logger, :eex, :xmerl]
+  defp extra_applications(_env), do: [:logger, :eex]
 
   # Run "mix help deps" to learn about dependencies.
   defp deps do
@@ -38,7 +43,7 @@ defmodule Grimoire.MixProject do
   end
 
   defp escript do
-    [main_module: Grimoire.CLI]
+    [main_module: Grimoire.CLI, name: "grimoire"]
   end
 
   defp elixirc_paths(:test), do: ["lib", "test/support"]

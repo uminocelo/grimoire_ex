@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - main
+    tags:
+      - "v*"
   pull_request:
 
 permissions:
@@ -69,3 +71,53 @@ jobs:
       - name: Run tests with coverage (>= 80% required)
         working-directory: grimoire
         run: mix test --cover
+
+  escript:
+    name: Build escript
+    needs: test
+    if: github.event_name == 'push'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+
+    steps:
+      - name: Check out Grimoire
+        uses: actions/checkout@v7
+        with:
+          path: grimoire
+
+      # See the "test" job's matching step — same reasoning.
+      - name: Check out Alembic (sibling path dependency)
+        uses: actions/checkout@v7
+        with:
+          repository: uminocelo/alembic_ex
+          path: alembic
+
+      - name: Set up Elixir and Erlang
+        uses: erlef/setup-beam@v1
+        with:
+          elixir-version: "1.18"
+          otp-version: "26"
+
+      - name: Install Hex
+        run: mix local.hex --force
+
+      - name: Fetch dependencies
+        working-directory: grimoire
+        run: mix deps.get
+
+      - name: Build escript
+        working-directory: grimoire
+        run: mix escript.build
+
+      - name: Upload escript artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: grimoire
+          path: grimoire/grimoire
+
+      - name: Attach escript to GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: grimoire/grimoire
