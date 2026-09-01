@@ -16,10 +16,15 @@ defmodule Grimoire.MixProject do
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
-      extra_applications: [:logger],
+      extra_applications: extra_applications(Mix.env()),
       mod: {Grimoire.Application, []}
     ]
   end
+
+  # :xmerl (OTP stdlib, not a Hex dependency) is only needed in test, to
+  # structurally validate the XML feed/sitemap output — see feed_test.exs.
+  defp extra_applications(:test), do: [:logger, :xmerl]
+  defp extra_applications(_env), do: [:logger]
 
   # Run "mix help deps" to learn about dependencies.
   defp deps do
