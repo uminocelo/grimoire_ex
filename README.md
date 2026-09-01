@@ -1,5 +1,7 @@
 # Grimoire
 
+[![CI](https://github.com/uminocelo/grimoire_ex/actions/workflows/ci.yml/badge.svg)](https://github.com/uminocelo/grimoire_ex/actions/workflows/ci.yml)
+
 A zero-runtime-dependency static site generator for Elixir, built on
 [Alembic](https://hexdocs.pm/alembic_template_engine), a Liquid-compatible
 template engine. Content is Markdown with YAML-like front matter; layouts
@@ -24,6 +26,11 @@ $ grimoire serve
 
 See [`docs/getting-started.md`](docs/getting-started.md) for the full
 walkthrough, verified end-to-end.
+
+Grimoire also builds its own site, dogfood-style — see
+[`site/`](site) for a real config/layouts/posts/pages example, built via
+`mix grimoire.build --source site` and deployed to GitHub Pages by
+[`.github/workflows/deploy-pages.yml`](.github/workflows/deploy-pages.yml).
 
 ## Installation
 
