@@ -65,3 +65,7 @@ jobs:
       - name: Run tests
         working-directory: grimoire
         run: mix test
+
+      - name: Run tests with coverage (>= 80% required)
+        working-directory: grimoire
+        run: mix test --cover

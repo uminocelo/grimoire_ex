@@ -5,7 +5,10 @@ defmodule Grimoire.DevServerTest do
 
   setup do
     :inets.start()
-    dir = Path.join(System.tmp_dir!(), "grimoire_dev_server_test_#{System.unique_integer([:positive])}")
+
+    dir =
+      Path.join(System.tmp_dir!(), "grimoire_dev_server_test_#{System.unique_integer([:positive])}")
+
     File.mkdir_p!(dir)
     File.write!(Path.join(dir, "index.html"), "<h1>Fixture Home</h1>")
     on_exit(fn -> File.rm_rf!(dir) end)

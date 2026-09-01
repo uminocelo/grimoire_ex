@@ -79,7 +79,8 @@ defmodule Grimoire.TaggerTest do
     test "falls back to the \"index\" layout when \"tag\" doesn't exist" do
       %{site: site, config: config} = site_with_layouts(%{"index" => "fallback: {{ tag }}"})
 
-      [page] = Tagger.generate_pages([post(slug: "a", source_path: "a", tags: ["elixir"])], site, config)
+      [page] =
+        Tagger.generate_pages([post(slug: "a", source_path: "a", tags: ["elixir"])], site, config)
 
       assert page.html == "fallback: elixir"
     end

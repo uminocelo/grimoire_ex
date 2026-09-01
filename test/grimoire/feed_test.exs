@@ -38,7 +38,9 @@ defmodule Grimoire.FeedTest do
 
   describe "rss/2" do
     test "contains an <rss root element and one <item> per included post, capped at feed_posts" do
-      posts = for i <- 1..5, do: post(slug: "p#{i}", source_path: "p#{i}", date: Date.add(~D[2024-01-01], i))
+      posts =
+        for i <- 1..5,
+            do: post(slug: "p#{i}", source_path: "p#{i}", date: Date.add(~D[2024-01-01], i))
 
       xml = Feed.rss(posts, config(feed_posts: 3))
       doc = xml_parses!(xml)

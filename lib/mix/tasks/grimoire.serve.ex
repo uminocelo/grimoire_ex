@@ -27,7 +27,9 @@ defmodule Mix.Tasks.Grimoire.Serve do
     port = Keyword.get(opts, :port, 4000)
     source = Keyword.get(opts, :source, ".")
 
-    config = source |> Config.load() |> then(&%{&1 | destination: output_dir(source, &1.destination)})
+    config =
+      source |> Config.load() |> then(&%{&1 | destination: output_dir(source, &1.destination)})
+
     site = Scanner.scan(source, config)
 
     Log.step("Building")

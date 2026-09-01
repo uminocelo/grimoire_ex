@@ -144,6 +144,17 @@ defmodule Grimoire.BuilderTest do
       assert source == broken.source_path
       assert summary.pages_written == 3
     end
+
+    test "a broken tag/category/pagination layout is recorded as an error instead of crashing the build",
+         %{site: site, dir: dir} do
+      File.write!(Path.join(dir, "_layouts/index.html"), "{{ }}")
+
+      assert {:ok, summary} = Builder.build(site)
+      assert summary.posts_written == 10
+      assert summary.pages_written == 3
+      assert length(summary.errors) > 0
+      assert Enum.any?(summary.errors, fn {source, _reason} -> source =~ "pagination:" end)
+    end
   end
 
   describe "build/2 archive page precedence" do

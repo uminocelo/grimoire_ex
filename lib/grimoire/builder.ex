@@ -62,7 +62,7 @@ defmodule Grimoire.Builder do
         render_and_write(site.pages, site, config, &Renderer.render_page/3, opts)
 
       taken_urls = MapSet.new(published_posts ++ site.pages, & &1.url)
-      archive_pages = archive_pages(site.posts, site, config, taken_urls)
+      {archive_pages, archive_errors} = archive_pages(site.posts, site, config, taken_urls)
       Enum.each(archive_pages, &write_file(&1.output_path, &1.html, opts))
 
       write_file(feed_path(config), Feed.rss(published_posts, config), opts)
@@ -79,7 +79,7 @@ defmodule Grimoire.Builder do
          assets_copied: assets_copied,
          feed_generated: true,
          sitemap_generated: true,
-         errors: post_errors ++ page_errors,
+         errors: post_errors ++ page_errors ++ archive_errors,
          duration_ms: System.monotonic_time(:millisecond) - start
        }}
     end
@@ -108,10 +108,19 @@ defmodule Grimoire.Builder do
   end
 
   defp archive_pages(posts, site, config, taken_urls) do
-    (Tagger.generate_pages(posts, site, config) ++
-       Categorizer.generate_pages(posts, site, config) ++
-       Paginator.generate_pages(posts, site, config))
-    |> Enum.reject(&MapSet.member?(taken_urls, &1.url))
+    {pages, errors} =
+      (Tagger.generate_pages(posts, site, config) ++
+         Categorizer.generate_pages(posts, site, config) ++
+         Paginator.generate_pages(posts, site, config))
+      |> Enum.reduce({[], []}, fn
+        {:error, %{reason: reason, source: source}}, {pages, errors} ->
+          {pages, [{source, reason} | errors]}
+
+        page, {pages, errors} ->
+          {[page | pages], errors}
+      end)
+
+    {Enum.reject(pages, &MapSet.member?(taken_urls, &1.url)), errors}
   end
 
   defp render_and_write(items, site, config, render_fun, opts) do

@@ -26,7 +26,10 @@ defmodule Grimoire.CategorizerTest do
 
   defp site_with_layouts(layouts) do
     dir =
-      Path.join(System.tmp_dir!(), "grimoire_categorizer_test_#{System.unique_integer([:positive])}")
+      Path.join(
+        System.tmp_dir!(),
+        "grimoire_categorizer_test_#{System.unique_integer([:positive])}"
+      )
 
     File.mkdir_p!(Path.join(dir, "_layouts"))
     on_exit(fn -> File.rm_rf!(dir) end)
@@ -82,7 +85,11 @@ defmodule Grimoire.CategorizerTest do
       %{site: site, config: config} = site_with_layouts(%{"index" => "fallback: {{ category }}"})
 
       [page] =
-        Categorizer.generate_pages([post(slug: "a", source_path: "a", categories: ["web"])], site, config)
+        Categorizer.generate_pages(
+          [post(slug: "a", source_path: "a", categories: ["web"])],
+          site,
+          config
+        )
 
       assert page.html == "fallback: web"
     end

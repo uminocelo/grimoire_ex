@@ -9,7 +9,8 @@ defmodule Grimoire.MixProject do
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       escript: escript(),
-      elixirc_paths: elixirc_paths(Mix.env())
+      elixirc_paths: elixirc_paths(Mix.env()),
+      test_coverage: [summary: [threshold: 80]]
     ]
   end
 

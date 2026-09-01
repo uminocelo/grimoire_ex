@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block content %}
+<ul class="posts">
+  {% for post in paginator.posts %}
+  <li><a href="{{ post.url | relative_url }}">{{ post.title }}</a></li>
+  {% endfor %}
+</ul>
+<nav>
+  {% if paginator.previous_page_path %}<a href="{{ paginator.previous_page_path }}">Newer</a>{% endif %}
+  <span>Page {{ paginator.page }} of {{ paginator.total_pages }}</span>
+  {% if paginator.next_page_path %}<a href="{{ paginator.next_page_path }}">Older</a>{% endif %}
+</nav>
+{% endblock %}

@@ -27,9 +27,12 @@ defmodule Grimoire.Paginator do
   Generates every paginated index page for `posts` — filtered to
   published and sorted date-descending internally via
   `Grimoire.Collection.from_posts/1`, so callers can pass a site's raw
-  post list.
+  post list. A page whose render fails (e.g. a template error in
+  `"index"`) yields `{:error, %{reason:, source:}}` instead of raising,
+  so one broken layout doesn't abort the whole build.
   """
-  @spec generate_pages([Post.t()], Site.t(), Config.t()) :: [page()]
+  @spec generate_pages([Post.t()], Site.t(), Config.t()) ::
+          [page() | {:error, Renderer.render_error()}]
   def generate_pages(posts, site, config) do
     posts
     |> Collection.from_posts()
@@ -59,17 +62,22 @@ defmodule Grimoire.Paginator do
     }
 
     source = "pagination:page-#{page.page_number}"
-    {:ok, html} = Renderer.render_layout(@layout, context, site, source: source)
 
-    %{
-      page_number: page.page_number,
-      posts: page.posts,
-      prev_url: page.prev_url,
-      next_url: page.next_url,
-      url: url,
-      output_path: output_path,
-      html: html
-    }
+    case Renderer.render_layout(@layout, context, site, source: source) do
+      {:ok, html} ->
+        %{
+          page_number: page.page_number,
+          posts: page.posts,
+          prev_url: page.prev_url,
+          next_url: page.next_url,
+          url: url,
+          output_path: output_path,
+          html: html
+        }
+
+      {:error, _reason} = error ->
+        error
+    end
   end
 
   defp paginator_context(page) do

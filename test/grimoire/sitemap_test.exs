@@ -4,7 +4,9 @@ defmodule Grimoire.SitemapTest do
   alias Grimoire.{Config, Page, Post, Site, Sitemap}
 
   defp tmp_file! do
-    dir = Path.join(System.tmp_dir!(), "grimoire_sitemap_test_#{System.unique_integer([:positive])}")
+    dir =
+      Path.join(System.tmp_dir!(), "grimoire_sitemap_test_#{System.unique_integer([:positive])}")
+
     File.mkdir_p!(dir)
     on_exit(fn -> File.rm_rf!(dir) end)
     path = Path.join(dir, "source.md")

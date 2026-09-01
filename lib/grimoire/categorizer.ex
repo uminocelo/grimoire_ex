@@ -25,9 +25,13 @@ defmodule Grimoire.Categorizer do
   Generates every category archive page for `posts` — filtered to
   published internally via `Grimoire.Collection.from_posts/1`, so a
   category that only appears on an unpublished post generates no page.
-  Returns `[]` when `config.generate_categories` is `false`.
+  Returns `[]` when `config.generate_categories` is `false`. A page whose
+  render fails (e.g. a template error in `"category"`/`"index"`) yields
+  `{:error, %{reason:, source:}}` instead of raising, so one broken
+  layout doesn't abort the whole build.
   """
-  @spec generate_pages([Post.t()], Site.t(), Config.t()) :: [page()]
+  @spec generate_pages([Post.t()], Site.t(), Config.t()) ::
+          [page() | {:error, Renderer.render_error()}]
   def generate_pages(_posts, _site, %Config{generate_categories: false}), do: []
 
   def generate_pages(posts, site, config) do
@@ -51,9 +55,12 @@ defmodule Grimoire.Categorizer do
 
     source = "categories:#{category}"
 
-    {:ok, html} =
-      Renderer.render_layout(@layout, context, site, source: source, fallback: @fallback_layout)
+    case Renderer.render_layout(@layout, context, site, source: source, fallback: @fallback_layout) do
+      {:ok, html} ->
+        %{category: category, posts: category_posts, url: url, output_path: output_path, html: html}
 
-    %{category: category, posts: category_posts, url: url, output_path: output_path, html: html}
+      {:error, _reason} = error ->
+        error
+    end
   end
 end

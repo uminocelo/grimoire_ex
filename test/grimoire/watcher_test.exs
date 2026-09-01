@@ -4,7 +4,9 @@ defmodule Grimoire.WatcherTest do
   alias Grimoire.{Config, Watcher}
 
   defp fixture_site! do
-    dir = Path.join(System.tmp_dir!(), "grimoire_watcher_test_#{System.unique_integer([:positive])}")
+    dir =
+      Path.join(System.tmp_dir!(), "grimoire_watcher_test_#{System.unique_integer([:positive])}")
+
     File.mkdir_p!(Path.join(dir, "_posts"))
     File.mkdir_p!(Path.join(dir, "_layouts"))
 
