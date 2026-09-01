@@ -1,0 +1,11 @@
+{% assign home_path = "/" %}
+{% assign about_path = "/about/" %}
+{% assign docs_path = "/documentation/" %}
+<header class="site-header">
+  <a href="{{ home_path | relative_url }}">{{ site.title }}</a>
+  <nav>
+    <a href="{{ home_path | relative_url }}">Posts</a>
+    <a href="{{ docs_path | relative_url }}">Documentation</a>
+    <a href="{{ about_path | relative_url }}">About</a>
+  </nav>
+</header>

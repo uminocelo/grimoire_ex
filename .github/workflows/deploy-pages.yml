@@ -1,0 +1,74 @@
+name: Deploy dogfood site
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "site/**"
+      - "lib/**"
+      - "priv/**"
+      - "mix.exs"
+      - "mix.lock"
+      - ".github/workflows/deploy-pages.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Check out Grimoire
+        uses: actions/checkout@v7
+        with:
+          path: grimoire
+
+      # See ci.yml's matching step — Grimoire depends on Alembic as a
+      # local path dependency ({:alembic, path: "../alembic"}).
+      - name: Check out Alembic (sibling path dependency)
+        uses: actions/checkout@v7
+        with:
+          repository: uminocelo/alembic_ex
+          path: alembic
+
+      - name: Set up Elixir and Erlang
+        uses: erlef/setup-beam@v1
+        with:
+          elixir-version: "1.18"
+          otp-version: "26"
+
+      - name: Install Hex
+        run: mix local.hex --force
+
+      - name: Fetch dependencies
+        working-directory: grimoire
+        run: mix deps.get
+
+      - name: Build the dogfood site
+        working-directory: grimoire
+        run: mix grimoire.build --source site --dest site/_site
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: grimoire/site/_site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-24.04
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
