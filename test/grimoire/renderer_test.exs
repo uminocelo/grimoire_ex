@@ -21,6 +21,15 @@ defmodule Grimoire.RendererTest do
       assert html =~ "First paragraph, the excerpt."
     end
 
+    test "the layout's custom filters (date_to_string, absolute_url) resolve without per-call registration",
+         %{site: site, config: config} do
+      post = Enum.find(site.posts, &(&1.slug == "hello-grimoire"))
+
+      assert {:ok, html} = Renderer.render_post(post, site, config)
+      assert html =~ "<time>January 15, 2024</time>"
+      assert html =~ ~s(href="https://example.com/2024/01/15/hello-grimoire/")
+    end
+
     test "falls back to the \"default\" layout when the post's own layout is missing" do
       dir =
         Path.join(System.tmp_dir!(), "grimoire_renderer_test_#{System.unique_integer([:positive])}")
@@ -109,6 +118,20 @@ defmodule Grimoire.RendererTest do
       map = Renderer.post_to_map(post)
       assert map["date"] == "2024-01-15"
       assert is_binary(map["date"])
+    end
+
+    test "site_to_map/1's time reflects the current build run, not a cached value", %{site: site} do
+      first = Renderer.site_to_map(site)["time"]
+      Process.sleep(2)
+      second = Renderer.site_to_map(site)["time"]
+
+      assert {:ok, _, _} = DateTime.from_iso8601(first)
+      refute first == second
+    end
+
+    test "site_to_map/1's posts exclude unpublished posts", %{site: site} do
+      titles = site |> Renderer.site_to_map() |> Map.fetch!("posts") |> Enum.map(& &1["title"])
+      refute "Unpublished Draft" in titles
     end
   end
 end
